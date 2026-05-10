@@ -1,0 +1,8 @@
+rootProject.name = 'dbms'
+
+include 'storage'
+include 'protocol'
+include 'server'
+include 'client'
+include 'orchestrator'
+include 'integration'

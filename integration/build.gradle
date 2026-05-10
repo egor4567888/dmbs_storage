@@ -1,0 +1,22 @@
+// Интеграционный модуль: запускает оркестратор + клиентов + сервер вместе и проверяет
+// инварианты системы целиком.
+dependencies {
+    testImplementation project(':storage')
+    testImplementation project(':protocol')
+    testImplementation project(':server')
+    testImplementation project(':client')
+    testImplementation project(':orchestrator')
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.assertj:assertj-core:3.25.3'
+}
+
+tasks.withType(Test).configureEach {
+    // Оркестратор форкает дочернюю JVM с serverMain.
+    systemProperty 'integration.test.classpath', sourceSets.test.runtimeClasspath.asPath
+    systemProperty 'integration.test.javaHome', System.getProperty('java.home')
+    // Chaos-тест на 15 секунд достаточно тяжёлый — пусть длинный таймаут не пугает Gradle.
+    timeout = java.time.Duration.ofMinutes(3)
+}

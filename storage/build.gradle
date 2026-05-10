@@ -1,0 +1,12 @@
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.assertj:assertj-core:3.25.3'
+}
+
+tasks.withType(Test).configureEach {
+    // Crash test forks a child JVM and SIGKILLs it; expose classpath so child can reuse it.
+    systemProperty 'storage.test.classpath', sourceSets.test.runtimeClasspath.asPath
+    systemProperty 'storage.test.javaHome', System.getProperty('java.home')
+}
