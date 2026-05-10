@@ -1,0 +1,20 @@
+.gradle/
+build/
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+out/
+bin/
+
+# логи демо
+*.log
+
+# macOS / Windows мусор
+.DS_Store
+Thumbs.db
+
+ARCHITECTURE.md
+CLAUDE.md
+task.txt
