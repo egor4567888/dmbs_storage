@@ -1,0 +1,26 @@
+// Клиент: низкоуровневый сокет + генератор нагрузки + локальная реплика для верификации.
+// Зависит от protocol; не зависит от storage (мы не должны иметь прямого доступа к стейту сервера).
+dependencies {
+    implementation project(':protocol')
+
+    testImplementation project(':storage')
+    testImplementation project(':server')
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.assertj:assertj-core:3.25.3'
+}
+
+// Удобный запуск: gradle :client:runClient -Pport=12345 -PdurationSec=30 [-PkeySpace=4096] [-Pseed=42]
+tasks.register('runClient', JavaExec) {
+    group = 'application'
+    description = 'Запустить клиент-нагрузочник: -Pport=<port> -PdurationSec=<sec>'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'dbms.client.ClientMain'
+    args = [
+            project.findProperty('port') ?: '12345',
+            project.findProperty('durationSec') ?: '30',
+            project.findProperty('keySpace') ?: '4096',
+            project.findProperty('seed') ?: System.nanoTime().toString()
+    ]
+}

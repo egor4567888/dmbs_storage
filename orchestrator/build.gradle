@@ -1,0 +1,35 @@
+// Оркестратор форкает дочернюю JVM с серверным main и убивает её destroyForcibly().
+// Зависимостей на runtime нет — он только запускает процесс. На server зависимость нужна,
+// чтобы по умолчанию класс ServerMain был на classpath дочернего процесса.
+dependencies {
+    implementation project(':server')
+
+    testImplementation project(':client')
+    testImplementation project(':storage')
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.assertj:assertj-core:3.25.3'
+}
+
+tasks.withType(Test).configureEach {
+    // Оркестратор форкает дочернюю JVM. Прокидываем classpath, чтобы он мог найти ServerMain.
+    systemProperty 'orchestrator.test.classpath', sourceSets.test.runtimeClasspath.asPath
+    systemProperty 'orchestrator.test.javaHome', System.getProperty('java.home')
+}
+
+// Удобный запуск: gradle :orchestrator:runOrchestrator -PstateDir=/tmp/kvstate -Pport=12345 \
+//                        [-PminLifeMs=700] [-PmaxLifeMs=1800] [-Pseed=42]
+tasks.register('runOrchestrator', JavaExec) {
+    group = 'application'
+    description = 'Запустить оркестратор, который будет регулярно убивать сервер'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'dbms.orchestrator.OrchestratorMain'
+    args = [
+            project.findProperty('stateDir') ?: '/tmp/kvstate',
+            project.findProperty('port') ?: '12345',
+            project.findProperty('minLifeMs') ?: '700',
+            project.findProperty('maxLifeMs') ?: '1800',
+            project.findProperty('seed') ?: System.nanoTime().toString()
+    ]
+}
